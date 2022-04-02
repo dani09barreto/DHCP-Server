@@ -5,10 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.example</groupId>
-  <artifactId>DCHP</artifactId>
+  <artifactId>DCHPClient</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>DCHP</name>
+  <name>DCHPClient</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -31,7 +31,6 @@
       <artifactId>onos-app-dhcp-api</artifactId>
       <version>1.6.0</version>
     </dependency>
-
   </dependencies>
 
   <build>
