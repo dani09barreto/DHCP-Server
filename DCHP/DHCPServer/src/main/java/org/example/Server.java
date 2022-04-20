@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 public class Server {
     public static void main( String[] args ) {
-        final int port = 68;
+        final int port = 67;
         byte [] buffer = new byte[1024];
 
         try {
