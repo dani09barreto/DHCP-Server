@@ -4,6 +4,8 @@ import org.onlab.packet.DHCP;
 import org.onlab.packet.DHCPOption;
 import org.onlab.packet.DHCPPacketType;
 import org.onlab.packet.DeserializationException;
+import org.onosproject.dhcp.DhcpService;
+import org.onosproject.dhcp.DhcpStore;
 
 import java.io.IOException;
 import java.math.BigInteger;
