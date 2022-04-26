@@ -1,28 +1,34 @@
-package org.example;
+package org.example.main;
 
-import org.onlab.packet.DHCP;
-import org.onlab.packet.DHCPOption;
-import org.onlab.packet.DHCPPacketType;
-import org.onlab.packet.DeserializationException;
+import org.example.mensajes.Mensaje;
+import org.onlab.packet.*;
 import org.onosproject.dhcp.DhcpService;
 import org.onosproject.dhcp.DhcpStore;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class Server {
-    public static void main( String[] args ) {
+    public static void main( String[] args ){
         final int port = 67;
         byte [] buffer = new byte[1024];
+        Mensaje crearMensaje =  new Mensaje();
+        byte [] data = null;
         try {
             //se crea variable para abrir el socket pueto 67
             DatagramSocket socketUDP = new DatagramSocket(port);
             //se  crea variable para recibir el paquete del cliente
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             System.out.println("servidor inciado");
-            for (;;){
+
+            while (true){
                 //se espera a recibir el paquete 
                 socketUDP.receive(packet);
                 System.out.println("se recibe la info del cliete");
@@ -46,23 +52,38 @@ public class Server {
                         Decline responde Ack */       
                         if (tipoMensaje == DHCPPacketType.DHCPDISCOVER.getValue()){
                             System.out.println("mensaje Discover");
+                            data = crearMensaje.packetOffer(mensaje);
                         }
                         if (tipoMensaje == DHCPPacketType.DHCPREQUEST.getValue()){
                             System.out.println("mensaje Request");
+                            crearMensaje.packetACK(mensaje);
                         }
                         if (tipoMensaje == DHCPPacketType.DHCPDECLINE.getValue()){
                             System.out.println("mensaje Decline");
+                            crearMensaje.packetACK(mensaje);
+                        }
+                        if (tipoMensaje == DHCPPacketType.DHCPRELEASE.getValue()){
+                            System.out.println("mensaje Decline");
+                            crearMensaje.packetACK(mensaje);
                         }
                     }
                 }
+                int puertoCliente = packet.getPort();
+                InetAddress direccion = packet.getAddress();
+                DatagramPacket respuesta = new DatagramPacket(data, data.length, direccion, puertoCliente);
             }
 
-        } catch (SocketException e) {
+        }
+        catch (SocketException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (DeserializationException e) {
             throw new RuntimeException(e);
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
+
+
 }
