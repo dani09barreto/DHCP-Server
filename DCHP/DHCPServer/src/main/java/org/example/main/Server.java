@@ -56,21 +56,22 @@ public class Server {
                         }
                         if (tipoMensaje == DHCPPacketType.DHCPREQUEST.getValue()){
                             System.out.println("mensaje Request");
-                            crearMensaje.packetACK(mensaje);
+                            crearMensaje.packetACK(mensaje,DHCP.deserializer().deserialize(data, 0, data.length));
                         }
                         if (tipoMensaje == DHCPPacketType.DHCPDECLINE.getValue()){
                             System.out.println("mensaje Decline");
-                            crearMensaje.packetACK(mensaje);
+                            //crearMensaje.packetACK(mensaje);
                         }
                         if (tipoMensaje == DHCPPacketType.DHCPRELEASE.getValue()){
                             System.out.println("mensaje Decline");
-                            crearMensaje.packetACK(mensaje);
+                            //crearMensaje.packetACK(mensaje);
                         }
                     }
                 }
                 int puertoCliente = packet.getPort();
                 InetAddress direccion = packet.getAddress();
                 DatagramPacket respuesta = new DatagramPacket(data, data.length, direccion, puertoCliente);
+                socketUDP.send(respuesta);
             }
 
         }
