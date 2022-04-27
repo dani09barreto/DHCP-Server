@@ -16,19 +16,21 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 public class Server {
-    public static void main( String[] args ){
+    public static void main( String[] args ) throws UnknownHostException {
         final int port = 67;
-        byte [] buffer = new byte[1024];
         Mensaje crearMensaje =  new Mensaje();
         byte [] data = null;
+        Ip4Address broadcast = Ip4Address.valueOf("255.255.255.255");
+        InetAddress enviarBroadcast = InetAddress.getByAddress(broadcast.toOctets());
         try {
             //se crea variable para abrir el socket pueto 67
             DatagramSocket socketUDP = new DatagramSocket(port);
             //se  crea variable para recibir el paquete del cliente
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             System.out.println("servidor inciado");
 
             while (true){
+                byte [] buffer = new byte[1024];
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 //se espera a recibir el paquete 
                 socketUDP.receive(packet);
                 System.out.println("se recibe la info del cliete");
@@ -68,9 +70,11 @@ public class Server {
                         }
                     }
                 }
-                int puertoCliente = packet.getPort();
-                InetAddress direccion = packet.getAddress();
-                DatagramPacket respuesta = new DatagramPacket(data, data.length, direccion, puertoCliente);
+                System.out.println(enviarBroadcast);
+                DatagramPacket respuesta = new DatagramPacket(data, data.length, enviarBroadcast, 68);
+                System.out.println("Enviando respuesta a el cliente");
+                socketUDP.send(respuesta);
+                System.out.println("enviado");
             }
 
         }
