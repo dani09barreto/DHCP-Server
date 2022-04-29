@@ -1,5 +1,7 @@
 package org.example.main;
 
+import org.example.Data.Direccion;
+import org.example.Data.IpAddress;
 import org.example.mensajes.Mensaje;
 import org.onlab.packet.*;
 import org.onosproject.dhcp.DhcpService;
@@ -22,6 +24,31 @@ public class Server {
         byte [] data = null;
         Ip4Address broadcast = Ip4Address.valueOf("255.255.255.255");
         InetAddress enviarBroadcast = InetAddress.getByAddress(broadcast.toOctets());
+        ArrayList<IpAddress> DireccionesRed =  Direccion.ReadFile();
+        int max;
+        for (IpAddress ip: DireccionesRed){
+
+            max = (int) Math.pow(2,(32-ip.getPrefijo()));
+            max-=2;
+            System.out.println(max);
+            int Inicial=ip.getIpGateway().toInt();
+            Inicial++;
+            for(int i=0;i<max;i++){
+                IpAddress temp = new IpAddress();
+                temp.setIpAddress(Ip4Address.valueOf(Inicial));
+                temp.setIpGateway(ip.getIpGateway());
+                temp.setPrefijo(ip.getPrefijo());
+                temp.setStatus(IpAddress.Status.NoAsignada);
+                temp.setIpDNS1(ip.getIpDNS1());
+                temp.setIpDNS2(ip.getIpDNS2());
+                temp.setIpsExclude(ip.getIpsExclude());
+                temp.setIpMask(ip.getIpMask());
+                
+                Inicial++;
+                System.out.println(temp.getIpAddress());
+            }
+            System.out.println("Sub red");
+        }
         try {
             //se crea variable para abrir el socket pueto 67
             DatagramSocket socketUDP = new DatagramSocket(port);

@@ -10,9 +10,9 @@ import java.util.Scanner;
 import java.util.StringTokenizer;
 
 public class Direccion {
-    private List<IpAddress> direcciones = new ArrayList<>();
 
-    public void ReadFile() {
+    private static ArrayList<IpAddress> direcciones = new ArrayList<>();
+    public static ArrayList<IpAddress> ReadFile() {
         try {
             File file = new File("C:\\Users\\santi\\OneDrive - Pontificia Universidad Javeriana\\Desktop\\U-SANTI\\Semestre 3\\POO\\02-feb\\src\\entities\\Dir.txt");
             Scanner line = new Scanner(file);
@@ -26,10 +26,13 @@ public class Direccion {
                     tok = tokens.nextToken();
                     if (tok.equals("R")) {
                         Ipadress.setIpAddress(Ip4Address.valueOf(tokens.nextToken()));
-                        System.out.println(1);
-                        System.out.println(Ipadress.getIpAddress());
                     } else if (tok.equals("M")) {
-                        Ipadress.setIpMask(Ip4Address.valueOf(tokens.nextToken()));
+                        Ipadress.setPrefijo(Integer.parseInt(tokens.nextToken()));
+                        Ipadress.setIpMask(Ip4Address.makeMaskPrefix(Ipadress.getPrefijo()));
+                    } else if (tok.equals("D1")) {
+                        Ipadress.setIpDNS1(Ip4Address.valueOf(tokens.nextToken()));
+                    } else if (tok.equals("D2")) {
+                        Ipadress.setIpDNS2(Ip4Address.valueOf(tokens.nextToken()));
                     } else {
                         if (tok.equals("G")) {
                             Ipadress.setIpGateway(Ip4Address.valueOf(tokens.nextToken()));
@@ -44,5 +47,6 @@ public class Direccion {
             e.printStackTrace();
             System.out.println("No se encuentra!");
         }
+        return direcciones;
     }
 }
