@@ -1,17 +1,53 @@
 package org.example.Data;
 
 import org.onlab.packet.Ip4Address;
+import org.onosproject.dhcp.IpAssignment;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public class IpAddress {
+    private Integer prefijo;
     private Ip4Address ipAddress;
     private Ip4Address ipMask;
     private Ip4Address ipGateway;
     private Ip4Address ipDNS1;
     private Ip4Address ipDNS2;
-    private ArrayList <Ip4Address> ipsExclude = new ArrayList<>();
+    private Status status;
+    private ArrayList<IpAddress> direcciones = new ArrayList<>();
+
+    private byte [] host = null;
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public Integer getPrefijo() {
+        return prefijo;
+    }
+
+    public void setPrefijo(Integer prefijo) {
+        this.prefijo = prefijo;
+    }
+    public ArrayList<IpAddress> getDirecciones() {
+        return direcciones;
+    }
+
+    public void setDirecciones(ArrayList<IpAddress> direcciones) {
+        this.direcciones = direcciones;
+    }
+
+    public enum Status {
+        Asignada,
+        NoAsignada,
+        Reservada
+    }
+
+    private ArrayList<Ip4Address> ipsExclude = new ArrayList<>();
 
     public Ip4Address getIpAddress() {
         return ipAddress;
@@ -59,6 +95,19 @@ public class IpAddress {
 
     public void setIpsExclude(ArrayList<Ip4Address> ipsExclude) {
         this.ipsExclude = ipsExclude;
+    }
+
+    public byte[] getHost() {
+        return host;
+    }
+
+    public void setHost(byte[] host) {
+        this.host = host;
+    }
+
+    @Override
+    public String toString() {
+        return "IpAddress{}";
     }
 
     public IpAddress() {

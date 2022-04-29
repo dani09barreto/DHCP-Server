@@ -1,27 +1,28 @@
 package org.example.main;
 
+import org.example.Data.Direccion;
+import org.example.Data.IpAddress;
 import org.example.mensajes.Mensaje;
 import org.onlab.packet.*;
-import org.onosproject.dhcp.DhcpService;
-import org.onosproject.dhcp.DhcpStore;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
 
 public class Server {
     public static void main( String[] args ) throws UnknownHostException {
         final int port = 67;
-        Mensaje crearMensaje =  new Mensaje();
         byte [] data = null;
         Ip4Address broadcast = Ip4Address.valueOf("255.255.255.255");
         InetAddress enviarBroadcast = InetAddress.getByAddress(broadcast.toOctets());
+        ArrayList<IpAddress> DireccionesRed =  Direccion.ReadFile();
+        //Ip4Address ipServidor = Ip4Address.valueOf(InetAddress.getLocalHost().getAddress());
+        Ip4Address ipServidor = Ip4Address.valueOf("10.30.4.11");
+        Direccion.poolDirecciones(DireccionesRed, ipServidor);
+
+        IpAddress ipAddress = Direccion.pedirDireccion(Ip4Address.valueOf("10.30.4.1"),ipServidor,DireccionesRed );
+        System.out.println(ipAddress.getIpAddress().toString()+ "," +ipAddress.getIpGateway().toString()+","+ipAddress.getIpMask().toString()+","+ipAddress.getIpDNS1().toString()+","+ipAddress.getIpDNS2().toString());
         try {
             //se crea variable para abrir el socket pueto 67
             DatagramSocket socketUDP = new DatagramSocket(port);
@@ -54,11 +55,11 @@ public class Server {
                         Decline responde Ack */       
                         if (tipoMensaje == DHCPPacketType.DHCPDISCOVER.getValue()){
                             System.out.println("mensaje Discover");
-                            data = crearMensaje.packetOffer(mensaje);
+                            data = Mensaje.packetOffer(mensaje, Ip4Address.valueOf(packet.getAddress()), ipServidor, DireccionesRed);
                         }
                         if (tipoMensaje == DHCPPacketType.DHCPREQUEST.getValue()){
                             System.out.println("mensaje Request");
-                            crearMensaje.packetACK(mensaje,DHCP.deserializer().deserialize(data, 0, data.length));
+                            Mensaje.packetACK(mensaje,DHCP.deserializer().deserialize(data, 0, data.length));
                         }
                         if (tipoMensaje == DHCPPacketType.DHCPDECLINE.getValue()){
                             System.out.println("mensaje Decline");
@@ -71,6 +72,7 @@ public class Server {
                     }
                 }
                 System.out.println(enviarBroadcast);
+
                 DatagramPacket respuesta = new DatagramPacket(data, data.length, enviarBroadcast, 68);
                 System.out.println("Enviando respuesta a el cliente");
                 socketUDP.send(respuesta);
