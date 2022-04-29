@@ -1,5 +1,7 @@
 package org.example.Data;
 
+import org.jboss.netty.handler.ipfilter.IpSubnet;
+import org.onlab.packet.DHCP;
 import org.onlab.packet.Ip4Address;
 import org.onosproject.dhcp.IpAssignment;
 
@@ -48,5 +50,71 @@ public class Direccion {
             System.out.println("No se encuentra!");
         }
         return direcciones;
+    }
+    public static void poolDirecciones (ArrayList<IpAddress> DireccionesRed, Ip4Address ipServidor){
+        int max;
+        for (IpAddress ip: DireccionesRed){
+            max = (int) Math.pow(2,(32-ip.getPrefijo()));
+            max-=2;
+            int Inicial=ip.getIpGateway().toInt();
+            Inicial ++;
+            for(int i=0;i<max;i++){
+                IpAddress temp = new IpAddress();
+                if (!(Inicial == ipServidor.toInt())){
+                    temp.setIpAddress(Ip4Address.valueOf(Inicial));
+                    temp.setIpGateway(ip.getIpGateway());
+                    temp.setPrefijo(ip.getPrefijo());
+                    temp.setStatus(IpAddress.Status.NoAsignada);
+                    temp.setIpDNS1(ip.getIpDNS1());
+                    temp.setIpDNS2(ip.getIpDNS2());
+                    temp.setIpsExclude(ip.getIpsExclude());
+                    temp.setIpMask(ip.getIpMask());
+                    ip.getDirecciones().add(temp);
+                    Inicial ++;
+                }else{
+                    Inicial ++;
+                }
+            }
+        }
+    }
+
+    public static IpAddress pedirDireccion (Ip4Address direccionOrigen, Ip4Address ipServidor, ArrayList<IpAddress> DireccionesRed){
+
+        for (IpAddress red :DireccionesRed){
+            if (ipServidor == direccionOrigen){
+                IpAddress subRed = existeIp(ipServidor, DireccionesRed);
+                for (IpAddress ipsub : subRed.getDirecciones()){
+                    if (ipsub.getStatus() == IpAddress.Status.NoAsignada)
+                        ipsub.setStatus(IpAddress.Status.Asignada);
+                    return ipsub;
+                }
+            }else{
+                IpAddress subRed = existeIp( direccionOrigen, DireccionesRed);
+                for (IpAddress ipsub : subRed.getDirecciones()){
+                    if (ipsub.getStatus() == IpAddress.Status.NoAsignada)
+                        ipsub.setStatus(IpAddress.Status.Asignada);
+                    return ipsub;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static IpAddress existeIp (Ip4Address ip, ArrayList<IpAddress> Direciones){
+        for (IpAddress redTem : Direciones) {
+            if (redTem.getIpGateway().equals(ip)){
+                return redTem;
+            }
+        }
+        return null;
+    }
+    public static boolean liberarIP (Ip4Address ip, ArrayList<IpAddress> Direciones){
+        for (IpAddress redTem : Direciones) {
+            if (redTem.getIpGateway().equals(ip)){
+                redTem.setStatus(IpAddress.Status.NoAsignada);
+                return true;
+            }
+        }
+        return false;
     }
 }

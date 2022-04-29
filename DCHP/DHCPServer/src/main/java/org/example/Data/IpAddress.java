@@ -16,6 +16,8 @@ public class IpAddress {
     private Status status;
     private ArrayList<IpAddress> direcciones = new ArrayList<>();
 
+    private byte [] host = null;
+
     public Status getStatus() {
         return status;
     }
@@ -93,6 +95,19 @@ public class IpAddress {
 
     public void setIpsExclude(ArrayList<Ip4Address> ipsExclude) {
         this.ipsExclude = ipsExclude;
+    }
+
+    public byte[] getHost() {
+        return host;
+    }
+
+    public void setHost(byte[] host) {
+        this.host = host;
+    }
+
+    @Override
+    public String toString() {
+        return "IpAddress{}";
     }
 
     public IpAddress() {
