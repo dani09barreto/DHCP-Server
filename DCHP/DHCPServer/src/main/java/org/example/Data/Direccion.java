@@ -16,9 +16,10 @@ public class Direccion {
     private static ArrayList<IpAddress> direcciones = new ArrayList<>();
     public static ArrayList<IpAddress> ReadFile() {
         try {
-            File file = new File("C:\\Users\\santi\\OneDrive - Pontificia Universidad Javeriana\\Desktop\\U-SANTI\\Semestre 3\\POO\\02-feb\\src\\entities\\Dir.txt");
+            File file = new File("?");
             Scanner line = new Scanner(file);
             String content;
+            //actualizar token
             while (line.hasNextLine()) { // lineas
                 IpAddress Ipadress = new IpAddress();
                 content = line.nextLine();
@@ -76,45 +77,5 @@ public class Direccion {
                 }
             }
         }
-    }
-
-    public static IpAddress pedirDireccion (Ip4Address direccionOrigen, Ip4Address ipServidor, ArrayList<IpAddress> DireccionesRed){
-
-        for (IpAddress red :DireccionesRed){
-            if (ipServidor == direccionOrigen){
-                IpAddress subRed = existeIp(ipServidor, DireccionesRed);
-                for (IpAddress ipsub : subRed.getDirecciones()){
-                    if (ipsub.getStatus() == IpAddress.Status.NoAsignada)
-                        ipsub.setStatus(IpAddress.Status.Asignada);
-                    return ipsub;
-                }
-            }else{
-                IpAddress subRed = existeIp( direccionOrigen, DireccionesRed);
-                for (IpAddress ipsub : subRed.getDirecciones()){
-                    if (ipsub.getStatus() == IpAddress.Status.NoAsignada)
-                        ipsub.setStatus(IpAddress.Status.Asignada);
-                    return ipsub;
-                }
-            }
-        }
-        return null;
-    }
-
-    public static IpAddress existeIp (Ip4Address ip, ArrayList<IpAddress> Direciones){
-        for (IpAddress redTem : Direciones) {
-            if (redTem.getIpGateway().equals(ip)){
-                return redTem;
-            }
-        }
-        return null;
-    }
-    public static boolean liberarIP (Ip4Address ip, ArrayList<IpAddress> Direciones){
-        for (IpAddress redTem : Direciones) {
-            if (redTem.getIpGateway().equals(ip)){
-                redTem.setStatus(IpAddress.Status.NoAsignada);
-                return true;
-            }
-        }
-        return false;
     }
 }
