@@ -18,9 +18,11 @@ public class Direccion {
     public static ArrayList<IpAddress> ReadFile() {
         try {
             boolean Exepcion = false;
-            File file = new File("C:\\Users\\santi\\OneDrive - Pontificia Universidad Javeriana\\Desktop\\U-SANTI\\Semestre 3\\POO\\02-feb\\src\\entities\\Dir.txt");
+            File file = new File("?");
+
             Scanner line = new Scanner(file);
             String content;
+            //actualizar token
             while (line.hasNextLine()) { // lineas
                 IpAddress Ipadress = new IpAddress();
                 content = line.nextLine();
