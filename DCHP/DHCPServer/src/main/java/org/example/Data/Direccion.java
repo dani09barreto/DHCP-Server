@@ -14,8 +14,10 @@ import java.util.StringTokenizer;
 public class Direccion {
 
     private static ArrayList<IpAddress> direcciones = new ArrayList<>();
+
     public static ArrayList<IpAddress> ReadFile() {
         try {
+            boolean Exepcion = false;
             File file = new File("C:\\Users\\santi\\OneDrive - Pontificia Universidad Javeriana\\Desktop\\U-SANTI\\Semestre 3\\POO\\02-feb\\src\\entities\\Dir.txt");
             Scanner line = new Scanner(file);
             String content;
@@ -35,12 +37,14 @@ public class Direccion {
                         Ipadress.setIpDNS1(Ip4Address.valueOf(tokens.nextToken()));
                     } else if (tok.equals("D2")) {
                         Ipadress.setIpDNS2(Ip4Address.valueOf(tokens.nextToken()));
-                    } else {
-                        if (tok.equals("G")) {
-                            Ipadress.setIpGateway(Ip4Address.valueOf(tokens.nextToken()));
-                            break;
-                        }
-                        Ipadress.getIpsExclude().add(Ip4Address.valueOf(tokens.nextToken()));
+                    } else if (tok.equals("E")) {
+                        Exepcion = true;
+                    } else if (tok.equals("G")) {
+                        Exepcion = false;
+                        Ipadress.setIpGateway(Ip4Address.valueOf(tokens.nextToken()));
+                        break;
+                    } else if (Exepcion) {
+                        Ipadress.getIpsExclude().add(Ip4Address.valueOf(tok));
                     }
                 }
                 direcciones.add(Ipadress);
@@ -51,16 +55,22 @@ public class Direccion {
         }
         return direcciones;
     }
-    public static void poolDirecciones (ArrayList<IpAddress> DireccionesRed, Ip4Address ipServidor){
+
+    public static void poolDirecciones(ArrayList<IpAddress> DireccionesRed, Ip4Address ipServidor) {
         int max;
-        for (IpAddress ip: DireccionesRed){
-            max = (int) Math.pow(2,(32-ip.getPrefijo()));
-            max-=2;
-            int Inicial=ip.getIpGateway().toInt();
-            Inicial ++;
-            for(int i=0;i<max;i++){
+        for (IpAddress ip : DireccionesRed) {
+            max = (int) Math.pow(2, (32 - ip.getPrefijo()));
+            max -= 2;
+            int Inicial = ip.getIpGateway().toInt();
+            Inicial++;
+            for (int i = 0; i < max; i++) {
+                boolean Valida = true;
+                for (Ip4Address escluida : ip.getIpsExclude()) {
+                    if (Ip4Address.valueOf(Inicial).equals(escluida))
+                        Valida = false;
+                }
                 IpAddress temp = new IpAddress();
-                if (!(Inicial == ipServidor.toInt())){
+                if (Valida) {
                     temp.setIpAddress(Ip4Address.valueOf(Inicial));
                     temp.setIpGateway(ip.getIpGateway());
                     temp.setPrefijo(ip.getPrefijo());
@@ -70,51 +80,71 @@ public class Direccion {
                     temp.setIpsExclude(ip.getIpsExclude());
                     temp.setIpMask(ip.getIpMask());
                     ip.getDirecciones().add(temp);
-                    Inicial ++;
-                }else{
-                    Inicial ++;
+                    Inicial++;
+                } else {
+                    Inicial++;
                 }
             }
         }
     }
 
-    public static IpAddress pedirDireccion (Ip4Address direccionOrigen, Ip4Address ipServidor, ArrayList<IpAddress> DireccionesRed){
-
-        for (IpAddress red :DireccionesRed){
-            if (ipServidor == direccionOrigen){
-                IpAddress subRed = existeIp(ipServidor, DireccionesRed);
-                for (IpAddress ipsub : subRed.getDirecciones()){
-                    if (ipsub.getStatus() == IpAddress.Status.NoAsignada)
-                        ipsub.setStatus(IpAddress.Status.Asignada);
-                    return ipsub;
+    public static IpAddress pedirDireccion(Ip4Address GateServer, ArrayList<IpAddress> DireccionesRed, Ip4Address GateWayMessage) {
+        if (GateWayMessage.equals(Ip4Address.valueOf("0.0.0.0"))) {
+            for (IpAddress ip : DireccionesRed) {
+                if (ip.getIpGateway().equals(GateServer)) {
+                    for (IpAddress host : ip.getDirecciones()) {
+                        if (host.getStatus().equals(IpAddress.Status.NoAsignada)) {
+                            System.out.println(host.getIpAddress());
+                            return host;
+                        }
+                    }
                 }
-            }else{
-                IpAddress subRed = existeIp( direccionOrigen, DireccionesRed);
-                for (IpAddress ipsub : subRed.getDirecciones()){
-                    if (ipsub.getStatus() == IpAddress.Status.NoAsignada)
-                        ipsub.setStatus(IpAddress.Status.Asignada);
-                    return ipsub;
+            }
+        } else {
+            for (IpAddress ip : DireccionesRed) {
+                if (ip.getIpGateway().equals(GateWayMessage)) {
+                    for (IpAddress host : ip.getDirecciones()) {
+                        if (host.getStatus().equals(IpAddress.Status.NoAsignada)) {
+                            System.out.println(host.getIpAddress());
+                            return host;
+                        }
+                    }
                 }
             }
         }
         return null;
     }
 
-    public static IpAddress existeIp (Ip4Address ip, ArrayList<IpAddress> Direciones){
-        for (IpAddress redTem : Direciones) {
-            if (redTem.getIpGateway().equals(ip)){
-                return redTem;
-            }
-        }
-        return null;
-    }
-    public static boolean liberarIP (Ip4Address ip, ArrayList<IpAddress> Direciones){
-        for (IpAddress redTem : Direciones) {
-            if (redTem.getIpGateway().equals(ip)){
-                redTem.setStatus(IpAddress.Status.NoAsignada);
-                return true;
+    public static boolean AskedIp(Ip4Address asked, ArrayList<IpAddress> DireccionesRed) {
+
+        for (IpAddress ip : DireccionesRed) {
+            for (IpAddress host : ip.getDirecciones()) {
+                if (host.getIpAddress().equals(asked) && host.getStatus().equals(IpAddress.Status.NoAsignada)) {
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    public static IpAddress Exits(Ip4Address asked, ArrayList<IpAddress> DireccionesRed) {
+        for (IpAddress ip : DireccionesRed) {
+            for (IpAddress host : ip.getDirecciones()) {
+                if (host.getIpAddress().equals(asked)) {
+                    return host;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void ChangeS(Ip4Address asked, ArrayList<IpAddress> DireccionesRed, IpAddress.Status state){
+        for(IpAddress ip: DireccionesRed){
+            for(IpAddress host : ip.getDirecciones()){
+                if(host.getIpAddress().equals(asked)){
+                    host.setStatus(state);
+                }
+            }
+        }
     }
 }

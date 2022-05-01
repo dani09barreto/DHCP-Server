@@ -19,10 +19,9 @@ public class Server {
         ArrayList<IpAddress> DireccionesRed =  Direccion.ReadFile();
         //Ip4Address ipServidor = Ip4Address.valueOf(InetAddress.getLocalHost().getAddress());
         Ip4Address ipServidor = Ip4Address.valueOf("10.30.4.11");
+        Ip4Address GateWServer = Ip4Address.valueOf("0.0.0.0");
         Direccion.poolDirecciones(DireccionesRed, ipServidor);
 
-        IpAddress ipAddress = Direccion.pedirDireccion(Ip4Address.valueOf("10.30.4.1"),ipServidor,DireccionesRed );
-        System.out.println(ipAddress.getIpAddress().toString()+ "," +ipAddress.getIpGateway().toString()+","+ipAddress.getIpMask().toString()+","+ipAddress.getIpDNS1().toString()+","+ipAddress.getIpDNS2().toString());
         try {
             //se crea variable para abrir el socket pueto 67
             DatagramSocket socketUDP = new DatagramSocket(port);
@@ -52,10 +51,12 @@ public class Server {
                         si el cliente manda
                         Discover respondo con Offer
                         Request responde Ack
-                        Decline responde Ack */       
+                        Decline responde Ack
+                        */
+
                         if (tipoMensaje == DHCPPacketType.DHCPDISCOVER.getValue()){
                             System.out.println("mensaje Discover");
-                            data = Mensaje.packetOffer(mensaje, Ip4Address.valueOf(packet.getAddress()), ipServidor, DireccionesRed);
+                            data = Mensaje.packetOffer(mensaje,GateWServer, DireccionesRed,ipServidor);
                         }
                         if (tipoMensaje == DHCPPacketType.DHCPREQUEST.getValue()){
                             System.out.println("mensaje Request");
