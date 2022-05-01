@@ -16,25 +16,23 @@ import java.util.List;
 
 public class Mensaje {
 
-    public static DHCP packetOffer(DHCP mensaje, ArrayList <DHCP> enviados) throws UnknownHostException {
+    public static DHCP packetOffer(DHCP mensaje, ArrayList <DHCP> enviados, Ip4Address GateWServer, ArrayList<IpAddress> DireccionesRed, Ip4Address ipServidor) throws UnknownHostException {
+
         System.out.println("Creando mensaje DHCPOFFER");
-
         DHCP mensajeOffer = new DHCP();
-        Ip4Address gateway = Ip4Address.valueOf("10.30.4.9");
-        Ip4Address ipasignada = Ip4Address.valueOf("10.30.4.10");
-        Ip4Address mascara = Ip4Address.valueOf("255.255.255.248");
-        Ip4Address DNSPrimario = Ip4Address.valueOf("10.10.1.200");
-        Ip4Address DNSSecundario = Ip4Address.valueOf("10.10.1.201");
-        Ip4Address ipServidor = Ip4Address.valueOf(InetAddress.getLocalHost().getAddress());
 
-        boolean flagIp = false;
+        IpAddress ipAsignada = new IpAddress();
+
         for (DHCPOption op : mensaje.getOptions()) {
             if (op.getCode() == DHCP.DHCPOptionCode.OptionCode_RequestedIP.getValue()) {
-                flagIp = true;
-                ipasignada = Ip4Address.valueOf(op.getData());
-            }
-        }
-
+                if (Direccion.AskedIp(Ip4Address.valueOf(op.getData()), DireccionesRed)) {
+                    ipAsignada = Direccion.Exits(Ip4Address.valueOf(op.getData()), DireccionesRed);
+                    Direccion.ChangeS(ipAsignada.getIpAddress(), DireccionesRed, IpAddress.Status.Reservada);
+                } else {
+                    ipAsignada = Direccion.pedirDireccion(GateWServer, DireccionesRed, Ip4Address.valueOf(mensaje.getClientIPAddress()));
+                    Direccion.ChangeS(ipAsignada.getIpAddress(), DireccionesRed, IpAddress.Status.Reservada);
+                }
+				
         mensajeOffer.setOpCode(DHCP.OPCODE_REPLY);
         mensajeOffer.setHardwareType(DHCP.HWTYPE_ETHERNET);
         mensajeOffer.setHardwareAddressLength((byte) 6);
@@ -56,8 +54,8 @@ public class Mensaje {
         opcionMensaje.setData(new byte[]{(byte) DHCPPacketType.DHCPOFFER.getValue()});
         opcionMensaje.setLength((byte) new byte[]{(byte) DHCPPacketType.DHCPOFFER.getValue()}.length);
         opciones.add(opcionMensaje);
-      
-        DHCPOption opcionServidor =  new DHCPOption();
+
+        DHCPOption opcionServidor = new DHCPOption();
         opcionServidor.setCode(DHCP.DHCPOptionCode.OptionCode_DHCPServerIp.getValue());
         opcionServidor.setData(ipServidor.toOctets());
         opcionServidor.setLength((byte) ipServidor.toOctets().length);
@@ -65,8 +63,8 @@ public class Mensaje {
 
         DHCPOption opcionTiempoArrendado = new DHCPOption();
         opcionTiempoArrendado.setCode(DHCP.DHCPOptionCode.OptionCode_LeaseTime.getValue());
-        opcionTiempoArrendado.setData(new byte[]{0,1,81, (byte) 128});
-        opcionTiempoArrendado.setLength((byte) new byte[]{0,1,81, (byte) 128}.length);
+        opcionTiempoArrendado.setData(new byte[]{0, 1, 81, (byte) 128});
+        opcionTiempoArrendado.setLength((byte) new byte[]{0, 1, 81, (byte) 128}.length);
         opciones.add(opcionTiempoArrendado);
 
         DHCPOption opcionMascara = new DHCPOption();
@@ -83,8 +81,10 @@ public class Mensaje {
 
         DHCPOption opcionDNS = new DHCPOption();
         opcionDNS.setCode(DHCP.DHCPOptionCode.OptionCode_DomainServer.getValue());
-        opcionDNS.setData(ArrayUtils.addAll(DNSPrimario.toOctets(), DNSSecundario.toOctets()));
-        opcionDNS.setLength((byte)ArrayUtils.addAll(DNSPrimario.toOctets(), DNSSecundario.toOctets()).length);
+
+        opcionDNS.setData(ArrayUtils.addAll(ipAsignada.getIpDNS1().toOctets(), ipAsignada.getIpDNS2().toOctets()));
+        opcionDNS.setLength((byte) ArrayUtils.addAll(ipAsignada.getIpDNS1().toOctets(), ipAsignada.getIpDNS2().toOctets()).length);
+
         opciones.add(opcionDNS);
 
         DHCPOption opcionFinal = new DHCPOption();
@@ -99,7 +99,11 @@ public class Mensaje {
         return mensajeOffer;
     }
 
-    public static DHCP packetACK(DHCP mensaje, DHCP Offer) {
+
+    public static DHCP packetACK(DHCP mensaje, DHCP Offer, ArrayList<IpAddress> DireccionesRed) {
+		
+        Direccion.ChangeS(Ip4Address.valueOf(mensaje.getClientIPAddress()),DireccionesRed, IpAddress.Status.Asignada);
+		
         DHCP Ackmessage = new DHCP();
         Ip4Address Ipadress = Ip4Address.valueOf(Offer.getClientIPAddress());
         Ip4Address IpServer = Ip4Address.valueOf(Offer.getServerIPAddress());
@@ -156,12 +160,13 @@ public class Mensaje {
         DomainServerOp.setCode(DHCP.DHCPOptionCode.OptionCode_DomainServer.getValue());
         DomainServerOp.setData(ArrayUtils.addAll(DNSPrimario.toOctets(), DNSSecundario.toOctets()));
         DomainServerOp.setLength((byte)ArrayUtils.addAll(DNSPrimario.toOctets(), DNSSecundario.toOctets()).length);
+		
         options.add(DomainServerOp);
 
         DHCPOption EndOption = new DHCPOption();
         EndOption.setCode(DHCP.DHCPOptionCode.OptionCode_END.getValue());
-        EndOption.setData(new byte[]{(byte)255});
-        EndOption.setLength((byte)new byte[]{(byte)255}.length);
+        EndOption.setData(new byte[]{(byte) 255});
+        EndOption.setLength((byte) new byte[]{(byte) 255}.length);
         options.add(EndOption);
 
         Ackmessage.setOptions(options);

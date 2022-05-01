@@ -22,6 +22,7 @@ public class Server {
         ArrayList<IpAddress> DireccionesRed =  Direccion.ReadFile();
         //Ip4Address ipServidor = Ip4Address.valueOf(InetAddress.getLocalHost().getAddress());
         Ip4Address ipServidor = Ip4Address.valueOf("10.30.4.11");
+        Ip4Address GateWServer = Ip4Address.valueOf("0.0.0.0");
         Direccion.poolDirecciones(DireccionesRed, ipServidor);
         DHCPPacketType packetType = null;
         DHCPOption opcionMensaje = null;
@@ -58,7 +59,8 @@ public class Server {
                         si el cliente manda
                         Discover respondo con Offer
                         Request responde Ack
-                        Decline responde Ack */       
+                        Decline responde Ack
+                        */
                         if (tipoMensaje == DHCPPacketType.DHCPDISCOVER.getValue()){
                             System.out.println("mensaje Discover");
                             packetType = DHCPPacketType.DHCPDISCOVER;
@@ -82,10 +84,12 @@ public class Server {
                         mensajeEnviar = Mensaje.packetOffer(mensaje, mensajesEnviados);
                     data = mensajeEnviar.serialize();
                 }
-                if (packetType == DHCPPacketType.DHCPREQUEST){
+                else if (packetType == DHCPPacketType.DHCPREQUEST){
                     mensajeOffer = Mensaje.existeMensaje(mensaje.getTransactionId(), mensajesEnviados);
+					
                     if (mensajeOffer == null)
                         throw new RuntimeException();
+					
                     mensajeEnviar = Mensaje.packetACK(mensaje, mensajeOffer);
 
                 }
