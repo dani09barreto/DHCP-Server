@@ -16,7 +16,7 @@ import java.util.List;
 
 public class Mensaje {
 
-    public static byte [] packetOffer(DHCP mensaje) throws UnknownHostException {
+    public static DHCP packetOffer(DHCP mensaje, ArrayList <DHCP> enviados) throws UnknownHostException {
         System.out.println("Creando mensaje DHCPOFFER");
 
         DHCP mensajeOffer = new DHCP();
@@ -94,14 +94,12 @@ public class Mensaje {
         opciones.add(opcionFinal);
 
         mensajeOffer.setOptions(opciones);
-
-        System.out.println(mensajeOffer.toString());
-        System.out.println(mensajeOffer.getOptions().toString());
         System.out.println("mensaje OFFER CREADO");
-        return mensajeOffer.serialize();
+        enviados.add(mensajeOffer);
+        return mensajeOffer;
     }
 
-    public static byte[] packetACK(DHCP mensaje, DHCP Offer) {
+    public static DHCP packetACK(DHCP mensaje, DHCP Offer) {
         DHCP Ackmessage = new DHCP();
         Ip4Address Ipadress = Ip4Address.valueOf(Offer.getClientIPAddress());
         Ip4Address IpServer = Ip4Address.valueOf(Offer.getServerIPAddress());
@@ -168,7 +166,18 @@ public class Mensaje {
 
         Ackmessage.setOptions(options);
 
-        return Ackmessage.serialize();
+        return Ackmessage;
     }
 
+    //funcion busca en un arreglo de mensajes DHCP si existe uno de ellos con el id
+    //esto para evitar contestar un request sin offer
+    //o un discover reenviado
+    public static DHCP existeMensaje (int idTransaccion, ArrayList <DHCP> mensajes){
+        for (DHCP dhcpTemp : mensajes){
+            if (dhcpTemp.getTransactionId() == idTransaccion){
+                return dhcpTemp;
+            }
+        }
+        return null;
+    }
 }
