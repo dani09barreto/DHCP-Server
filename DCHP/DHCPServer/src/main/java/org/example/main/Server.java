@@ -115,7 +115,7 @@ public class Server {
                         IpAddress ip = Direccion.Exits(Ip4Address.valueOf(mensajeEnviar.getYourIPAddress()), DireccionesRed);
                         InetAddress direccionEnvio = InetAddress.getByAddress(ip.getIpAddress().toOctets());
                         if (ip.getSubRed()){
-                            respuesta = new DatagramPacket(data, data.length, direccionEnvio, 67);
+                            respuesta = new DatagramPacket(data, data.length, direccionEnvio, 68);
                         }else {
                             respuesta = new DatagramPacket(data, data.length, enviarBroadcast, 68);
                         }
