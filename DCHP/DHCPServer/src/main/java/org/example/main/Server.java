@@ -103,6 +103,7 @@ public class Server {
                         cliente.setHoraAsignacion(fechaActual);
                         fechaRevocacion.set(Calendar.DATE, fechaRevocacion.get(Calendar.DATE) + 1);
                         cliente.setHoraRenovacion(fechaRevocacion);
+                        System.out.println("cliente Mac: "+ Arrays.toString(cliente.getHosMac()) + "IP: "+ cliente.getIpAsiganda().toString()+ " Hora Asignacion: "+cliente.getHoraAsignacionString()+ "Hora Revocacion: "+cliente.getHoraRenovacionString()+ "\n" );
                         Cliente.writeLog(cliente);
 
                     } else if (packetType == DHCPPacketType.DHCPRELEASE) {
@@ -113,9 +114,9 @@ public class Server {
                     if (mensajeEnviar != null){
                         DatagramPacket respuesta;
                         IpAddress ip = Direccion.Exits(Ip4Address.valueOf(mensajeEnviar.getYourIPAddress()), DireccionesRed);
-                        InetAddress direccionEnvio = InetAddress.getByAddress(ip.getIpAddress().toOctets());
+                        InetAddress direccionEnvio = InetAddress.getByAddress(ip.getIpGateway().toOctets());
                         if (ip.getSubRed()){
-                            respuesta = new DatagramPacket(data, data.length, direccionEnvio, 68);
+                            respuesta = new DatagramPacket(data, data.length, direccionEnvio, 67);
                         }else {
                             respuesta = new DatagramPacket(data, data.length, enviarBroadcast, 68);
                         }

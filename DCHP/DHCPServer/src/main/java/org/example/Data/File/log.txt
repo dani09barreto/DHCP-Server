@@ -1,0 +1,2 @@
+cliente Mac: [8, 0, 39, -126, -92, -98]IP: 10.30.4.10 Hora Asignacion: 121/05/2022 05:39:35Hora Revocacion: 122/05/2022 05:39:35
+cliente Mac: [8, 0, 39, -126, -92, -98]IP: 10.30.4.10 Hora Asignacion: 01/05/2022 06:06:07Hora Revocacion: 02/05/2022 06:06:07
