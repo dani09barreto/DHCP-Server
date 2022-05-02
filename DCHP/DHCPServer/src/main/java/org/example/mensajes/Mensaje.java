@@ -42,7 +42,11 @@ public class Mensaje {
         mensajeOffer.setHops((byte) 0);
         mensajeOffer.setTransactionId(mensaje.getTransactionId());
         mensajeOffer.setSeconds((byte) 0);
-        mensajeOffer.setFlags((byte) 0);
+        if (ipAsignada.getSubRed()){
+            mensajeOffer.setFlags((byte) 0x8000);
+        }else {
+            mensajeOffer.setFlags((byte) 0);
+        }
         mensajeOffer.setClientIPAddress(mensaje.getClientIPAddress());
         mensajeOffer.setYourIPAddress(ipAsignada.getIpAddress().toInt());
         mensajeOffer.setServerIPAddress(ipServidor.toInt());
@@ -113,7 +117,11 @@ public class Mensaje {
         Ackmessage.setHops((byte) 0);
         Ackmessage.setTransactionId(mensaje.getTransactionId());
         Ackmessage.setSeconds((byte) 0);
-        Ackmessage.setFlags((byte) 0);
+        if (ipAddress.getSubRed()){
+            Ackmessage.setFlags((byte) 0x8000);
+        }else {
+            Ackmessage.setFlags((byte) 0);
+        }
         Ackmessage.setClientIPAddress(Ip4Address.valueOf("0.0.0.0").toInt());
         Ackmessage.setYourIPAddress(mensaje.getClientIPAddress());
         Ackmessage.setServerIPAddress(Ip4Address.valueOf("10.30.4.11").toInt());
@@ -179,7 +187,11 @@ public class Mensaje {
         Ackmessage.setHops((byte) 0);
         Ackmessage.setTransactionId(mensaje.getTransactionId());
         Ackmessage.setSeconds((byte) 0);
-        Ackmessage.setFlags((byte) 0);
+        if (ipAddress.getSubRed()){
+            Ackmessage.setFlags((byte) 0x8000);
+        }else {
+            Ackmessage.setFlags((byte) 0);
+        }
         Ackmessage.setClientIPAddress(mensaje.getClientIPAddress());
         Ackmessage.setYourIPAddress(Offer.getYourIPAddress());
         Ackmessage.setServerIPAddress(Offer.getServerIPAddress());

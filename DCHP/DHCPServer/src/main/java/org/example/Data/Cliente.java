@@ -68,21 +68,10 @@ public class Cliente {
 
     public static void writeLog (Cliente cliente){
         try (FileWriter fw = new FileWriter("C:\\Users\\santi\\Desktop\\Redes\\DHCP-server\\DHCP\\src\\main\\java\\org\\example\\Data\\File\\log.txt", true)){
-            if (existClient(cliente.getHosMac()) == null){
-                clientesasignados.add(cliente);
-                fw.write("cliente Mac: "+ Arrays.toString(cliente.getHosMac()) + "IP: "+ cliente.getIpAsiganda().toString()+ " Hora Asignacion: "+cliente.getHoraAsignacionString()+ "Hora Revocacion: "+cliente.getHoraRenovacionString()+ "\n" );
-            }
+            clientesasignados.add(cliente);
+            fw.write("cliente Mac: "+ Arrays.toString(cliente.getHosMac()) + "IP: "+ cliente.getIpAsiganda().toString()+ " Hora Asignacion: "+cliente.getHoraAsignacionString()+ "Hora Revocacion: "+cliente.getHoraRenovacionString()+ "\n" );
         } catch (IOException e) {
             System.out.println("No se pudo crear el archivo");
         }
-    }
-
-    public static Cliente existClient (byte [] macClient){
-        for (Cliente cl : clientesasignados){
-            if (Arrays.equals(cl.getHosMac(), macClient)){
-                return cl;
-            }
-        }
-        return null;
     }
 }

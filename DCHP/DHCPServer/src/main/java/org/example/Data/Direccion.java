@@ -96,7 +96,7 @@ public class Direccion {
                 if (ip.getIpGateway().equals(GateServer)) {
                     for (IpAddress host : ip.getDirecciones()) {
                         if (host.getStatus().equals(IpAddress.Status.NoAsignada)) {
-                            System.out.println(host.getIpAddress());
+                            host.setSubRed(false);
                             return host;
                         }
                     }
@@ -107,7 +107,7 @@ public class Direccion {
                 if (ip.getIpGateway().equals(GateWayMessage)) {
                     for (IpAddress host : ip.getDirecciones()) {
                         if (host.getStatus().equals(IpAddress.Status.NoAsignada)) {
-                            System.out.println(host.getIpAddress());
+                            host.setSubRed(true);
                             return host;
                         }
                     }
