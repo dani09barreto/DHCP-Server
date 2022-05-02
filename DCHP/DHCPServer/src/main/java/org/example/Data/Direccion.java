@@ -18,7 +18,7 @@ public class Direccion {
     public static ArrayList<IpAddress> ReadFile() {
         try {
             boolean Exepcion = false;
-            File file = new File("?");
+            File file = new File("C:\\Users\\santi\\Desktop\\Redes\\DHCP-server\\DHCP\\src\\main\\java\\org\\example\\Data\\File\\Dir.txt");
 
             Scanner line = new Scanner(file);
             String content;
@@ -117,12 +117,13 @@ public class Direccion {
         return null;
     }
 
-    public static boolean AskedIp(Ip4Address asked, ArrayList<IpAddress> DireccionesRed) {
-
+    public static boolean AskedIp(Ip4Address asked, ArrayList<IpAddress> DireccionesRed, Ip4Address gateWay) {
         for (IpAddress ip : DireccionesRed) {
-            for (IpAddress host : ip.getDirecciones()) {
-                if (host.getIpAddress().equals(asked) && host.getStatus().equals(IpAddress.Status.NoAsignada)) {
-                    return true;
+            if (gateWay.equals(ip.getIpGateway())) {
+                for (IpAddress host : ip.getDirecciones()) {
+                    if (host.getIpAddress().equals(asked) && host.getStatus().equals(IpAddress.Status.NoAsignada)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -140,10 +141,10 @@ public class Direccion {
         return null;
     }
 
-    public static void ChangeS(Ip4Address asked, ArrayList<IpAddress> DireccionesRed, IpAddress.Status state){
-        for(IpAddress ip: DireccionesRed){
-            for(IpAddress host : ip.getDirecciones()){
-                if(host.getIpAddress().equals(asked)){
+    public static void ChangeS(Ip4Address asked, ArrayList<IpAddress> DireccionesRed, IpAddress.Status state) {
+        for (IpAddress ip : DireccionesRed) {
+            for (IpAddress host : ip.getDirecciones()) {
+                if (host.getIpAddress().equals(asked)) {
                     host.setStatus(state);
                 }
             }
