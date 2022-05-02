@@ -81,14 +81,16 @@ public class Server {
                     }
                     else if (packetType == DHCPPacketType.DHCPREQUEST){
                         mensajeOffer = Mensaje.existeMensaje(mensaje.getTransactionId(), mensajesEnviados);
+                        IpAddress ip = Direccion.Exits(Ip4Address.valueOf(mensaje.getClientIPAddress()), DireccionesRed);
 
-                        if (mensaje.getClientIPAddress() != Ip4Address.valueOf("0.0.0.0").toInt()){
+                        if (ip != null){
                             mensajeEnviar = Mensaje.packetACKRelease(mensaje, DireccionesRed);
                             data = mensajeEnviar.serialize();
 
                         } else if (mensajeOffer == null)
                             throw new RuntimeException();
-                        if (mensaje.getClientIPAddress() == Ip4Address.valueOf("0.0.0.0").toInt()){
+
+                        if (ip == null && mensajeOffer != null){
                             mensajeEnviar = Mensaje.packetACK(mensaje, mensajeOffer, DireccionesRed);
                             data = mensajeEnviar.serialize();
                         }
@@ -109,9 +111,14 @@ public class Server {
                         System.out.println("Host: " + mensaje.getClientHardwareAddress().toString() + " Ip liberada: "+ packet.getAddress());
                     }
                     if (mensajeEnviar != null){
+                        DatagramPacket respuesta;
                         IpAddress ip = Direccion.Exits(Ip4Address.valueOf(mensajeEnviar.getYourIPAddress()), DireccionesRed);
                         InetAddress direccionEnvio = InetAddress.getByAddress(ip.getIpAddress().toOctets());
-                        DatagramPacket respuesta = new DatagramPacket(data, data.length, enviarBroadcast, 68);
+                        if (ip.getSubRed()){
+                            respuesta = new DatagramPacket(data, data.length, direccionEnvio, 67);
+                        }else {
+                            respuesta = new DatagramPacket(data, data.length, enviarBroadcast, 68);
+                        }
                         System.out.println("Enviando respuesta a el cliente");
                         socketUDP.send(respuesta);
                         System.out.println("enviado");

@@ -14,6 +14,7 @@ public class IpAddress {
     private Ip4Address ipDNS1;
     private Ip4Address ipDNS2;
     private Status status;
+    private boolean subRed;
     private ArrayList<IpAddress> direcciones = new ArrayList<>();
 
     private byte [] host = null;
@@ -103,6 +104,14 @@ public class IpAddress {
 
     public void setHost(byte[] host) {
         this.host = host;
+    }
+
+    public boolean getSubRed() {
+        return subRed;
+    }
+
+    public void setSubRed(boolean subRed) {
+        this.subRed = subRed;
     }
 
     @Override
